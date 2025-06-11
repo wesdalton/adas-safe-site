@@ -1,190 +1,92 @@
 // ADAS Safe - Main JavaScript
 
-// Navbar scroll effect
-window.addEventListener('scroll', function() {
-    const nav = document.querySelector('nav');
-    if (window.scrollY > 50) {
-        nav.style.background = 'rgba(255, 255, 255, 0.95)';
-        nav.style.backdropFilter = 'blur(20px)';
-        nav.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
-    } else {
-        nav.style.background = 'var(--glass)';
-        nav.style.boxShadow = 'none';
-    }
-});
+// ========================================
+// UTILITY FUNCTIONS
+// ========================================
 
-// Smooth scroll for anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    });
-});
-
-// Set active navigation link
-function setActiveNavLink() {
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    const navLinks = document.querySelectorAll('.nav-links a');
-    
-    navLinks.forEach(link => {
-        link.classList.remove('active');
-        const href = link.getAttribute('href');
-        
-        // Handle home page
-        if ((currentPage === 'index.html' || currentPage === '') && 
-            (href === 'index.html' || href === '/' || href.includes('#home'))) {
-            link.classList.add('active');
-        }
-        // Handle other pages
-        else if (href.includes(currentPage)) {
-            link.classList.add('active');
-        }
-    });
-}
-
-// Intersection Observer for fade-in animations
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
-
-const observer = new IntersectionObserver(function(entries) {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-        }
-    });
-}, observerOptions);
-
-// Initialize animations on page load
-function initializeAnimations() {
-    // Observe all feature, service cards, and FAQ items
-    document.querySelectorAll('.feature-card, .service-card, .faq-item, .content-card').forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        el.style.transition = 'all 0.6s ease-out';
-        observer.observe(el);
-    });
-}
-
-// Parallax effect for hero section (only on homepage)
-function initializeParallax() {
-    const hero = document.querySelector('.hero');
-    if (hero) {
-        window.addEventListener('scroll', () => {
-            const scrolled = window.pageYOffset;
-            const heroContent = document.querySelector('.hero-content');
+// Helper function to create accordion functionality
+function createAccordion(triggerSelector, containerSelector) {
+    document.querySelectorAll(triggerSelector).forEach(trigger => {
+        trigger.addEventListener('click', () => {
+            const container = trigger.closest(containerSelector);
+            const wasActive = container.classList.contains('active');
             
-            if (scrolled < window.innerHeight) {
-                hero.style.transform = `translateY(${scrolled * 0.5}px)`;
-                if (heroContent) {
-                    heroContent.style.transform = `translateY(${scrolled * 0.2}px)`;
-                    heroContent.style.opacity = 1 - (scrolled / window.innerHeight);
-                }
-            }
-        });
-    }
-}
-
-// FAQ Accordion functionality
-function initializeFAQ() {
-    document.querySelectorAll('.faq-question').forEach(question => {
-        question.addEventListener('click', () => {
-            const faqItem = question.parentElement;
-            const wasActive = faqItem.classList.contains('active');
-            
-            // Close all FAQ items
-            document.querySelectorAll('.faq-item').forEach(item => {
+            // Close all accordion items
+            document.querySelectorAll(containerSelector).forEach(item => {
                 item.classList.remove('active');
             });
             
             // Open clicked item if it wasn't active
             if (!wasActive) {
-                faqItem.classList.add('active');
+                container.classList.add('active');
             }
         });
     });
 }
 
-// Career Stage Accordion functionality
-function initializeCareerStages() {
-    document.querySelectorAll('.career-stage-header').forEach(header => {
-        header.addEventListener('click', () => {
-            const careerStage = header.parentElement;
-            const wasActive = careerStage.classList.contains('active');
-            
-            // Close all career stages
-            document.querySelectorAll('.career-stage').forEach(stage => {
-                stage.classList.remove('active');
-            });
-            
-            // Open clicked stage if it wasn't active
-            if (!wasActive) {
-                careerStage.classList.add('active');
-            }
-        });
+// Helper function to toggle mobile menu
+function toggleMobileMenu(hamburger, mobileNav, isOpen) {
+    hamburger.classList.toggle('active', isOpen);
+    mobileNav.classList.toggle('active', isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+}
+
+// ========================================
+// NAVIGATION
+// ========================================
+
+// Set active navigation link
+function setActiveNavLink() {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const currentHash = window.location.hash;
+    const allNavLinks = document.querySelectorAll('.nav-links a, .mobile-nav a:not(.cta-button)');
+    
+    allNavLinks.forEach(link => {
+        link.classList.remove('active');
+        const href = link.getAttribute('href');
+        
+        // Define matching conditions
+        const conditions = {
+            locations: href === 'mobile.html#locations' && currentPage === 'mobile.html' && currentHash === '#locations',
+            mobile: href === 'mobile.html' && currentPage === 'mobile.html' && (!currentHash || currentHash === ''),
+            home: (href === 'index.html' || href === '/' || href === '#about' || href === 'index.html#about') && 
+                  (currentPage === 'index.html' || currentPage === ''),
+            careers: href === 'careers.html' && currentPage === 'careers.html',
+            contact: href === 'contact.html' && currentPage === 'contact.html'
+        };
+        
+        if (Object.values(conditions).some(condition => condition)) {
+            link.classList.add('active');
+        }
     });
 }
 
-// Form handling - Now handled by forms.js
-function initializeForms() {
-    // Form handlers moved to forms.js for better organization
-    // This function is kept for compatibility
-}
+// ========================================
+// SCROLL EFFECTS
+// ========================================
 
-// Mobile menu toggle (for future mobile menu implementation)
-function initializeMobileMenu() {
-    // This can be expanded when adding a mobile hamburger menu
-    const mobileToggle = document.querySelector('.mobile-toggle');
-    if (mobileToggle) {
-        mobileToggle.addEventListener('click', function() {
-            const navLinks = document.querySelector('.nav-links');
-            navLinks.classList.toggle('mobile-open');
-        });
-    }
-}
-
-// Smooth scroll to next section from hero
-function scrollToNextSection() {
-    // Check if we're on careers page
-    const careersHero = document.querySelector('.careers-hero');
-    if (careersHero) {
-        const nextSection = document.querySelector('.join-us-section');
-        if (nextSection) {
-            const targetPosition = nextSection.getBoundingClientRect().top + window.pageYOffset - 100;
-            window.scrollTo({
-                top: targetPosition,
-                behavior: 'smooth'
-            });
+// Navbar scroll effect
+function initializeNavbarScroll() {
+    const nav = document.querySelector('nav');
+    if (!nav) return;
+    
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            nav.style.background = 'rgba(255, 255, 255, 0.95)';
+            nav.style.backdropFilter = 'blur(20px)';
+            nav.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
+        } else {
+            nav.style.background = 'var(--glass)';
+            nav.style.boxShadow = 'none';
         }
-    } else {
-        // We're on homepage, scroll to about section with padding
-        const aboutSection = document.querySelector('#about');
-        if (aboutSection) {
-            const targetPosition = aboutSection.getBoundingClientRect().top + window.pageYOffset - 120;
-            window.scrollTo({
-                top: targetPosition,
-                behavior: 'smooth'
-            });
-        }
-    }
+    });
 }
 
-// Enhanced scroll effects for both pages
+// Enhanced scroll effects for hero sections
 function initializeScrollEffects() {
-    // Careers page specific effects
     const careersHero = document.querySelector('.careers-hero');
     const heroVideo = document.querySelector('.hero-video');
     const heroOverlay = document.querySelector('.hero-video-overlay');
-    
-    // Homepage specific effects
     const homepageHero = document.querySelector('.hero');
     const heroContent = document.querySelector('.hero-content');
     const floatingCards = document.querySelectorAll('.floating-card');
@@ -197,13 +99,8 @@ function initializeScrollEffects() {
             const heroHeight = careersHero.offsetHeight;
             const scrollProgress = Math.min(scrolled / heroHeight, 1);
             
-            // Parallax effect on video
             heroVideo.style.transform = `translateY(${scrolled * 0.3}px) scale(${1 + scrollProgress * 0.1})`;
-            
-            // Fade out overlay content
             heroOverlay.style.opacity = 1 - (scrollProgress * 0.8);
-            
-            // Subtle hero container transform
             careersHero.style.transform = `translateY(${scrolled * 0.1}px)`;
         }
         
@@ -212,18 +109,15 @@ function initializeScrollEffects() {
             const heroHeight = homepageHero.offsetHeight;
             const scrollProgress = Math.min(scrolled / heroHeight, 1);
             
-            // Parallax effect on hero content
             heroContent.style.transform = `translateY(${scrolled * 0.2}px)`;
             heroContent.style.opacity = 1 - (scrollProgress * 0.6);
             
-            // Parallax effect on floating cards
             floatingCards.forEach((card, index) => {
                 const speed = 0.1 + (index * 0.05);
                 card.style.transform = `translateY(${scrolled * speed}px)`;
                 card.style.opacity = 1 - (scrollProgress * 0.7);
             });
             
-            // Grid background parallax
             const gridBg = document.querySelector('.grid-bg');
             if (gridBg) {
                 gridBg.style.transform = `translate(${scrolled * 0.05}px, ${scrolled * 0.05}px)`;
@@ -232,21 +126,185 @@ function initializeScrollEffects() {
     });
 }
 
+
+// Smooth scroll for anchor links
+function initializeSmoothScroll() {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                const navHeight = document.querySelector('nav')?.offsetHeight || 80;
+                const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navHeight - 20;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+    
+    // Handle locations link specifically (from other pages)
+    document.querySelectorAll('a[href="mobile.html#locations"]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            // If we're already on mobile.html, handle the scroll
+            if (window.location.pathname.includes('mobile.html')) {
+                e.preventDefault();
+                const target = document.querySelector('#locations');
+                if (target) {
+                    const navHeight = document.querySelector('nav')?.offsetHeight || 80;
+                    const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navHeight - 20;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Update URL hash
+                    history.pushState(null, null, '#locations');
+                    setActiveNavLink();
+                }
+            }
+            // If we're on a different page, let the browser navigate normally
+        });
+    });
+}
+
+// Smooth scroll to next section from hero
+function scrollToNextSection() {
+    const careersHero = document.querySelector('.careers-hero');
+    
+    if (careersHero) {
+        const nextSection = document.querySelector('.join-us-section');
+        if (nextSection) {
+            const targetPosition = nextSection.getBoundingClientRect().top + window.pageYOffset - 100;
+            window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        }
+    } else {
+        const aboutSection = document.querySelector('#about');
+        if (aboutSection) {
+            const targetPosition = aboutSection.getBoundingClientRect().top + window.pageYOffset - 120;
+            window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        }
+    }
+}
+
+// ========================================
+// ANIMATIONS
+// ========================================
+
+// Intersection Observer for fade-in animations
+function initializeAnimations() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    document.querySelectorAll('.feature-card, .service-card, .faq-item, .content-card').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'all 0.6s ease-out';
+        observer.observe(el);
+    });
+}
+
+// ========================================
+// INTERACTIVE COMPONENTS
+// ========================================
+
+// FAQ and Career Stage Accordions
+function initializeFAQ() {
+    createAccordion('.faq-question', '.faq-item');
+}
+
+function initializeCareerStages() {
+    createAccordion('.career-stage-header', '.career-stage');
+}
+
+// Mobile menu functionality
+function initializeMobileMenu() {
+    const hamburgerMenu = document.querySelector('.hamburger-menu');
+    const mobileNav = document.querySelector('.mobile-nav');
+    
+    if (!hamburgerMenu || !mobileNav) return;
+    
+    // Toggle menu on hamburger click
+    hamburgerMenu.addEventListener('click', () => {
+        const isOpen = !mobileNav.classList.contains('active');
+        toggleMobileMenu(hamburgerMenu, mobileNav, isOpen);
+    });
+    
+    // Close menu when clicking on links
+    mobileNav.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            toggleMobileMenu(hamburgerMenu, mobileNav, false);
+        });
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!hamburgerMenu.contains(e.target) && !mobileNav.contains(e.target)) {
+            toggleMobileMenu(hamburgerMenu, mobileNav, false);
+        }
+    });
+}
+
+// Form handling (placeholder for forms.js compatibility)
+function initializeForms() {
+    // Form handlers moved to forms.js for better organization
+    // This function is kept for compatibility
+}
+
+// ========================================
+// INITIALIZATION
+// ========================================
+
 // Initialize all functionality when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     setActiveNavLink();
+    initializeNavbarScroll();
+    initializeSmoothScroll();
     initializeAnimations();
-    initializeParallax();
+    initializeScrollEffects();
     initializeFAQ();
     initializeCareerStages();
     initializeForms();
     initializeMobileMenu();
-    initializeScrollEffects();
-});
-
-// Handle page visibility changes
-document.addEventListener('visibilitychange', function() {
-    if (!document.hidden) {
-        setActiveNavLink();
+    
+    // Handle initial hash navigation (e.g., direct links to #locations)
+    if (window.location.hash) {
+        setTimeout(() => {
+            const target = document.querySelector(window.location.hash);
+            if (target) {
+                const navHeight = document.querySelector('nav')?.offsetHeight || 80;
+                const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navHeight - 20;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        }, 100); // Small delay to ensure page is fully loaded
     }
 });
+
+// Handle navigation updates
+['visibilitychange', 'hashchange'].forEach(event => {
+    document.addEventListener(event === 'visibilitychange' ? event : 'hashchange', () => {
+        if (event === 'visibilitychange' && document.hidden) return;
+        setActiveNavLink();
+    });
+});
+
+// Make scrollToNextSection globally available for HTML onclick handlers
+window.scrollToNextSection = scrollToNextSection;

@@ -254,8 +254,9 @@ html {
 
     /* Careers Page Mobile Styles */
     .join-us-title {
-        font-size: 5rem;
+        font-size: clamp(3rem, 8vw, 4rem);
         margin-bottom: 1.5rem;
+        white-space: nowrap;
     }
 
     .join-us-image img {
@@ -452,7 +453,7 @@ html {
 }
 
 .join-us-title {
-    font-size: 8rem;
+    font-size: 6rem;
     font-weight: 900;
     text-align: center;
     margin-bottom: 2rem;
@@ -461,6 +462,7 @@ html {
     -webkit-text-fill-color: transparent;
     position: relative;
     z-index: 2;
+    white-space: nowrap;
 }
 
 .join-us-content {
