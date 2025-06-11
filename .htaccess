@@ -1,9 +1,0 @@
-RewriteEngine On
-
-# Specific clean URL mappings
-RewriteRule ^mobile/?$ mobile.html [L]
-RewriteRule ^careers/?$ careers.html [L] 
-RewriteRule ^contact/?$ contact.html [L]
-
-# Root to index
-RewriteRule ^$ index.html [L]
