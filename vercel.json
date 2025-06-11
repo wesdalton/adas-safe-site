@@ -5,6 +5,10 @@
       "destination": "/mobile.html"
     },
     {
+      "source": "/locations",
+      "destination": "/mobile.html#locations"
+    },
+    {
       "source": "/careers", 
       "destination": "/careers.html"
     },
