@@ -8,8 +8,8 @@ class Config {
         
         // Feature flags
         this.features = {
-            fileUpload: false, // Disabled until storage RLS is resolved
-            debugMode: false,  // Set to true for development
+            fileUpload: true, // Enabled for resume uploads
+            debugMode: false, // Disabled for production
             formValidation: true
         }
         

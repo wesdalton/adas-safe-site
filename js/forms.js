@@ -19,6 +19,7 @@ class ADASForms {
         }
     }
     
+    
     setupFormHandlers() {
         // Contact Form
         const contactForm = document.getElementById('contact-form')
@@ -127,18 +128,21 @@ class ADASForms {
                 zip_code: formData.get('zip-code')?.trim() || null,
                 resume_filename: file.name,
                 resume_file_size: file.size,
-                resume_url: this.config.features.fileUpload ? null : `pending_${file.name}`
+                resume_url: null // Will be set after upload
             }
             
-            this.config.log('Submitting career application:', careerData)
+            this.config.log('Submitting career application')
             
             // Handle file upload if enabled
             if (this.config.features.fileUpload) {
                 const uploadResult = await this.uploadResume(file)
+                
                 if (uploadResult.success) {
                     careerData.resume_url = uploadResult.url
                 } else {
-                    throw new Error(`File upload failed: ${uploadResult.error}`)
+                    this.config.error('File upload failed, proceeding without upload')
+                    careerData.resume_url = `upload_failed_${file.name}`
+                    careerData.upload_error = uploadResult.error
                 }
             }
             
@@ -150,9 +154,12 @@ class ADASForms {
             if (error) throw error
             
             // Success
-            const message = this.config.features.fileUpload 
-                ? 'Thank you for your application! We will review it and get back to you soon.'
-                : 'Thank you for your application! We have received your information. Please email your resume to contact@adas-safe.com.'
+            let message
+            if (careerData.resume_url && !careerData.resume_url.startsWith('upload_failed_')) {
+                message = 'Thank you for your application! We will review it and get back to you soon.'
+            } else {
+                message = 'Thank you for your application! We have received your information. Please email your resume to contact@adas-safe.com due to a technical issue with file upload.'
+            }
             
             this.showMessage(message, 'success')
             form.reset()
@@ -168,9 +175,12 @@ class ADASForms {
     
     async uploadResume(file) {
         try {
-            const fileExt = file.name.split('.').pop()
+            const fileExt = file.name.split('.').pop().toLowerCase()
             const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`
             
+            this.config.log('Uploading resume file:', fileName)
+            
+            // Upload to resumes bucket
             const { data, error } = await this.supabase.storage
                 .from('resumes')
                 .upload(fileName, file, {
@@ -179,16 +189,26 @@ class ADASForms {
                     contentType: file.type
                 })
             
-            if (error) throw error
+            if (error) {
+                this.config.error('Resume upload failed:', error.message)
+                throw error
+            }
             
+            if (!data) {
+                throw new Error('Upload succeeded but no data returned')
+            }
+            
+            // Get public URL
             const { data: { publicUrl } } = this.supabase.storage
                 .from('resumes')
                 .getPublicUrl(fileName)
             
-            return { success: true, url: publicUrl }
+            this.config.log('Resume uploaded successfully')
+            
+            return { success: true, url: publicUrl, path: data.path }
         } catch (error) {
-            this.config.error('File upload failed:', error)
-            return { success: false, error: error.message }
+            this.config.error('Resume upload error:', error.message)
+            return { success: false, error: error.message || 'Upload failed' }
         }
     }
     
@@ -249,8 +269,7 @@ class ADASForms {
     
     showMessage(message, type = 'info') {
         // Simple alert for now - can be replaced with custom modal/toast
-        const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'
-        alert(`${icon} ${message}`)
+        alert(message)
     }
 }
 
