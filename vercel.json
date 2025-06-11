@@ -6,7 +6,7 @@
     },
     {
       "source": "/locations",
-      "destination": "/mobile.html#locations"
+      "destination": "/mobile.html?scroll=locations"
     },
     {
       "source": "/careers", 

@@ -296,6 +296,27 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 100); // Small delay to ensure page is fully loaded
     }
+    
+    // Handle Vercel query parameter scrolling (for /locations clean URL)
+    const urlParams = new URLSearchParams(window.location.search);
+    const scrollTo = urlParams.get('scroll');
+    if (scrollTo) {
+        setTimeout(() => {
+            const target = document.querySelector(`#${scrollTo}`);
+            if (target) {
+                const navHeight = document.querySelector('nav')?.offsetHeight || 80;
+                const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navHeight - 20;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+                
+                // Clean up the URL by removing the query parameter
+                window.history.replaceState({}, '', window.location.pathname + '#' + scrollTo);
+            }
+        }, 100);
+    }
 });
 
 // Handle navigation updates
