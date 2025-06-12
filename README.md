@@ -45,20 +45,11 @@ ALTER TABLE contact_submissions DISABLE ROW LEVEL SECURITY;
 ALTER TABLE career_applications DISABLE ROW LEVEL SECURITY;
 ```
 
-## File Uploads
-
-Currently disabled due to Supabase storage RLS issues. To enable:
-
-1. Create `resumes` bucket in Supabase Storage (set as public)
-2. Add storage policies via Supabase dashboard UI
-3. Set `fileUpload: true` in `js/config.js`
-
 ## Configuration
 
 Edit `js/config.js`:
 - `fileUpload`: Enable/disable resume uploads  
 - `debugMode`: Console logging for development
-- Supabase credentials are in this file (move to build process for production)
 
 ## File Structure
 
