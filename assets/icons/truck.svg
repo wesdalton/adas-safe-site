@@ -1,0 +1,7 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-reactroot="">
+<path stroke-linejoin="round" stroke-linecap="round" stroke-width="1" stroke="#d22b2b" fill="none" d="M22 17V11L18 5H2V17H4C4 15.8954 4.89543 15 6 15C7.10457 15 8 15.8954 8 17H16C16 15.8954 16.8954 15 18 15C19.1046 15 20 15.8954 20 17H22Z"></path>
+<circle stroke-linejoin="round" stroke-linecap="round" stroke-width="1" stroke="#d22b2b" fill="none" r="2" cy="17" cx="6"></circle>
+<circle stroke-linejoin="round" stroke-linecap="round" stroke-width="1" stroke="#d22b2b" fill="none" r="2" cy="17" cx="18"></circle>
+<path stroke-width="1" stroke="#d22b2b" d="M8 5V11H12V5"></path>
+<path stroke-width="1" stroke="#d22b2b" d="M15 5V11H22"></path>
+</svg>
